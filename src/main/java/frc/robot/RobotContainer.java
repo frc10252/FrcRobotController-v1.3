@@ -18,6 +18,7 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Intake;
 
 
 
@@ -38,10 +39,14 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
 
     private final CommandXboxController joystick = new CommandXboxController(0);
+    private final CommandXboxController coJoystick = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+
+
     private final Drive driveSystem = new Drive(drivetrain);
+    private final Intake intakeSystem = new Intake();
 
     public RobotContainer() {
         configureBindings();
@@ -79,6 +84,19 @@ public class RobotContainer {
                     .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         ));
+
+        intakeSystem.setDefaultCommand(new InstantCommand(()->
+            {
+                intakeSystem.setIntakePower(coJoystick.getRightY()*Constants.JOYSTICK_CORAL_MULTIPLIER);
+            })
+        );
+
+        coJoystick.leftBumper().whileTrue(new InstantCommand(()->
+            {
+                intakeSystem.setIntakePower(coJoystick.getRightY());
+            })
+        );
+
 
        
 

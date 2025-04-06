@@ -46,6 +46,5 @@ public class Constants {
     public static final double ELEVATOR_SPEED_LIMIT_MULTIPLIER = 0.3;
     public static final double ELEVATOR_OFFSET_POS = 0;
 
-
-
+    public static final double JOYSTICK_CORAL_MULTIPLIER = 0.2;
 }
