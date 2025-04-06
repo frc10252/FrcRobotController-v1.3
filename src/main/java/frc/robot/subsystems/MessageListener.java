@@ -16,7 +16,7 @@ public class MessageListener extends SubsystemBase {
 
     // Use volatile for variables accessed by multiple threads
     private volatile String lastMessage = "No messages to display";
-    private volatile AprilTagPIDReading aprilTagPIDReading;
+    private volatile AprilTagPIDReading aprilTagPIDReading = new AprilTagPIDReading(0, 0, 0, 0, 0, 0); // Prevent null pointers
     private double timeOfLastMessage = System.currentTimeMillis();
 
 
@@ -41,11 +41,7 @@ public class MessageListener extends SubsystemBase {
                 while (true) {
                     // Receive a packet (this call blocks until a packet is received)
                     socket.receive(packet);
-                    //System.out.println("Received packet: " + packet.getLength());
-
-                    // Extract the packet data
                     
-
                     // Synchronize updates to shared resources
                     synchronized (this) {
 
@@ -62,12 +58,6 @@ public class MessageListener extends SubsystemBase {
 
         listenerThread.setDaemon(true); // Ensure the thread doesn't prevent the program from exiting
         listenerThread.start();
-    }
-
-    @Override
-    public void periodic() {
-        // Perform any periodic updates if necessary
-        // Avoid blocking operations and thread creation here
     }
 
     public String getLastMessage() {

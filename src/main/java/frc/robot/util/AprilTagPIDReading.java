@@ -26,19 +26,6 @@ public class AprilTagPIDReading {
     public static AprilTagPIDReading decompress(DatagramPacket packet) {
         double pidX = 0.0, pidZ = 0.0, pidYaw = 0.0, metersX = 0.0, metersY = 0.0, tagRotation = 0.0;
 
-
-
-        // String[] parts = compressedReading.split(",");
-        // for (String part : parts) {
-        //     part = part.trim(); // remove any leading/trailing whitespaces
-        //     if (part.startsWith("PID X:")) {
-        //         pidX = Double.parseDouble(part.substring(6).trim());
-        //     } else if (part.startsWith("PID Z:")) {
-        //         pidZ = Double.parseDouble(part.substring(6).trim());
-        //     } else if (part.startsWith("PID Yaw:")) {
-        //         pidYaw = Double.parseDouble(part.substring(8).trim());
-        //     }
-        // }
         ByteBuffer buffer = ByteBuffer.wrap(packet.getData());
 
         buffer.order(ByteOrder.LITTLE_ENDIAN);

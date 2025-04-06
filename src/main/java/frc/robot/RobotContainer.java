@@ -20,6 +20,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.MessageListener;
 
 
 
@@ -46,51 +47,36 @@ public class RobotContainer {
 
 
 
-    private final Drive driveSystem = new Drive(drivetrain);
+    private final Drive driveSystem = new Drive(drivetrain, drive);
     private final Intake intakeSystem = new Intake();
     private final Elevator elevatorSystem = new Elevator();
+    private final MessageListener messageListenerSystem = new MessageListener();
 
     public RobotContainer() {
         configureBindings();
     }
 
     private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * Constants.MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
+        driveSystem.setDefaultCommand(joystick);
 
-        joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> driveRobotCentric.withVelocityX(-joystick.getLeftY() * Constants.MaxSpeed)
-            .withVelocityY(-joystick.getLeftX() * Constants.MaxSpeed)
-            .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate)
-        ));
+        joystick.rightBumper().whileTrue(driveSystem.driveRobotCentric(joystick));
 
         joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
 
-        joystick.x().onTrue(driveSystem.pathRelative(5, 5));
+        if (Robot.isSimulation()) {
+            joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
+        } else {
+            joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
+        }
+        
         joystick.y().onTrue(new InstantCommand(()->{
             driveSystem.cancelLastPath();
         }).andThen(
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * Constants.MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
+            driveSystem.driveFieldCentric(joystick)
         ));
-
-        // InstantCommand intakeDefault = new InstantCommand(()->{intakeSystem.setIntakePower(coJoystick.getRightY()*Constants.JOYSTICK_CORAL_MULTIPLIER);});
-        // InstantCommand intakeFast = new InstantCommand(()->{intakeSystem.setIntakePower(coJoystick.getRightY());});
-        // intakeDefault.addRequirements(intakeSystem);
-        // intakeFast.addRequirements(intakeSystem);
 
 
         // intakeSystem.setDefaultCommand(intakeDefault);
@@ -104,8 +90,6 @@ public class RobotContainer {
         //     elevatorSystem.setSpeedNoLimit(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
         // }));
         // DELET LATER
-
-        // Assuming intakeSystem and coJoystick are already defined and initialized
 
         // Define commands for the intake system with addRequirements
         InstantCommand intakeDefault = new InstantCommand(() -> {
@@ -133,9 +117,6 @@ public class RobotContainer {
         elevatorSystem.setDefaultCommand(elevatorDefault);
         coJoystick.b().whileTrue(elevatorNoLimit);
 
-
-       
-
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -147,9 +128,6 @@ public class RobotContainer {
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
-
-        
-
     }
 
     public Command getAutonomousCommand() {

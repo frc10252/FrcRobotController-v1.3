@@ -13,8 +13,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.constants.Constants;
+import frc.robot.util.AprilTagPIDReading;
 
 import java.util.List;
 
@@ -44,12 +46,15 @@ public class Drive implements Subsystem {
     private final SwerveRequest.RobotCentric driveRobotCentric = new SwerveRequest.RobotCentric()
             .withDeadband(Constants.MaxSpeed * 0.1)
             .withRotationalDeadband(Constants.MaxAngularRate * 0.1);
+
+    private final SwerveRequest.FieldCentric driveFieldCentric;
     
-    public Drive(CommandSwerveDrivetrain drivetrain) {
+    public Drive(CommandSwerveDrivetrain drivetrain, SwerveRequest.FieldCentric driveFieldCentric) {
         modules = drivetrain.getModules();
         kinematics = drivetrain.getKinematics();
         odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), getPositions());
         this.drivetrain = drivetrain;
+        this.driveFieldCentric = driveFieldCentric;
         try {
             RobotConfig config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(this::getPose, this::resetPose, this::getSpeeds, this::driveRobotRelative, 
@@ -82,6 +87,10 @@ public class Drive implements Subsystem {
         field.setRobotPose(getPose());
     }
 
+    public CommandSwerveDrivetrain getDrivetrain() {
+        return drivetrain;
+    }
+
     public Pose2d getPose() {
         return odometry.getPoseMeters();
     }
@@ -111,6 +120,12 @@ public class Drive implements Subsystem {
         return states;
     }
 
+    public void setDefaultCommand(CommandXboxController joystick) {
+        drivetrain.setDefaultCommand(
+            driveFieldCentric(joystick)
+        );
+    }
+
     public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
         ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
 
@@ -125,13 +140,26 @@ public class Drive implements Subsystem {
         .schedule();
     }
 
+    public Command driveRobotCentric(CommandXboxController joystick) {
+        return drivetrain.applyRequest(() -> driveRobotCentric.withVelocityX(-joystick.getLeftY() * Constants.MaxSpeed)
+            .withVelocityY(-joystick.getLeftX() * Constants.MaxSpeed)
+            .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate));
+    }
+
     public void cancelLastPath() {
         if (lastPath != null) lastPath.cancel();
     }
 
-    public Command pathRelative(double targetX, double targetY) {
+    public Command driveFieldCentric(CommandXboxController joystick) {
+        return drivetrain.applyRequest(() ->
+            driveFieldCentric.withVelocityX(-joystick.getLeftY() * Constants.MaxSpeed) // Drive forward with negative Y (forward)
+                .withVelocityY(joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+                .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+        );
+    }
+
+    public Command pathRelative(double targetX, double targetY, double targetRotation) {
         Pose2d currentPose = getPose();
-        Rotation2d targetRotation = currentPose.getRotation();
 
         Translation2d localOffset = new Translation2d(targetX, targetY);
         Translation2d fieldOffset = localOffset.rotateBy(currentPose.getRotation());
@@ -141,7 +169,7 @@ public class Drive implements Subsystem {
             currentPose.getRotation()
         );
 
-        Rotation2d endHeading = currentPose.getRotation(); // Todo: add offset feature
+        Rotation2d endHeading = currentPose.getRotation().plus(new Rotation2d(targetRotation));
 
         Pose2d endPose = new Pose2d(
             currentPose.getTranslation().plus(fieldOffset),
@@ -167,5 +195,9 @@ public class Drive implements Subsystem {
         
         return lastPath;
 
+    }
+
+    public Command pathAprilTag(AprilTagPIDReading reading) {
+        return pathRelative(reading.getMetersX(), reading.getMetersY(), reading.getTagRotation());
     }
 }
