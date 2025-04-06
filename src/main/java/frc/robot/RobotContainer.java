@@ -15,8 +15,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
-import frc.robot.generated.TunerConstants;
-import frc.robot.generated.Constants;
+import frc.robot.constants.TunerConstants;
+import frc.robot.constants.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Drive;
 
