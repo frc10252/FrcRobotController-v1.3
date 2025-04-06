@@ -162,8 +162,8 @@ public class Drive extends SubsystemBase {
 
     public void setDrivetrainDefaultCommand(CommandXboxController joystick) {
         drivetrain.setDefaultCommand(
-            // driveFieldCentric(joystick)
-            driveFieldCentricFacingAngle(joystick)
+            driveFieldCentric(joystick)
+            //driveFieldCentricFacingAngle(joystick)
         );
     }
 
