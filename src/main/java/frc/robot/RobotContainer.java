@@ -28,18 +28,8 @@ import frc.robot.subsystems.MessageListener;
 
 
 public class RobotContainer {
-    
-
-    /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-
-    public final SwerveRequest.RobotCentric driveRobotCentric = new SwerveRequest.RobotCentric()
-            .withDeadband(Constants.MaxSpeed * 0.1)
-            .withRotationalDeadband(Constants.MaxAngularRate * 0.1);
 
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
 
@@ -48,9 +38,10 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    private final AllianceStationID allianceStationID = DriverStation.getRawAllianceStation();
+    private final boolean isRed;
 
-
-    private final Drive driveSystem = new Drive(drivetrain, drive, joystick);
+    private final Drive driveSystem = new Drive(drivetrain, joystick);
     private final Intake intakeSystem = new Intake();
     private final Elevator elevatorSystem = new Elevator();
     private final MessageListener messageListenerSystem = new MessageListener();
@@ -58,12 +49,22 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
+
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+            isRed = alliance.get() == DriverStation.Alliance.Red;
+        } else {
+            isRed = true; // Default fallback value
+        }
     }
 
     private void configureBindings() {
         driveSystem.setDrivetrainDefaultCommand(joystick); 
 
         joystick.rightBumper().whileTrue(driveSystem.driveRobotCentric(joystick));
+        joystick.rightBumper().onFalse(new InstantCommand(() -> {
+            driveSystem.resetFacingAngle();
+        }));
 
         joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
@@ -76,10 +77,10 @@ public class RobotContainer {
             joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
         }
         
-        joystick.y().onTrue(new InstantCommand(()->{
+        joystick.y().onTrue(driveSystem.runOnce(() -> {
             driveSystem.cancelLastPath();
         }).andThen(
-            driveSystem.driveFieldCentric(joystick)
+            driveSystem.driveFieldCentricFacingAngle(joystick)
         ));
 
 
@@ -95,31 +96,19 @@ public class RobotContainer {
         // }));
         // DELET LATER
 
-        // Define commands for the intake system with addRequirements
-        InstantCommand intakeDefault = new InstantCommand(() -> {
+        intakeSystem.setDefaultCommand(intakeSystem.run(() -> {
             intakeSystem.setIntakePower(coJoystick.getRightY() * Constants.JOYSTICK_CORAL_MULTIPLIER);
-        });
-        InstantCommand intakeFast = new InstantCommand(() -> {
+        }));
+        coJoystick.leftBumper().whileTrue(intakeSystem.run(() -> {
             intakeSystem.setIntakePower(coJoystick.getRightY());
-        });
-        intakeDefault.addRequirements(intakeSystem);
-        intakeFast.addRequirements(intakeSystem);
+        }));
 
-        intakeSystem.setDefaultCommand(intakeDefault);
-        coJoystick.leftBumper().whileTrue(intakeFast);
-
-        // Define commands for the elevator system with addRequirements
-        InstantCommand elevatorDefault = new InstantCommand(() -> {
+        elevatorSystem.setDefaultCommand(elevatorSystem.run(() -> {
             elevatorSystem.setSpeed(coJoystick.getRightTriggerAxis() - coJoystick.getLeftTriggerAxis());
-        });
-        InstantCommand elevatorNoLimit = new InstantCommand(() -> {
+        }));
+        coJoystick.b().whileTrue(elevatorSystem.run(() -> {
             elevatorSystem.setSpeedNoLimit(coJoystick.getRightTriggerAxis() - coJoystick.getLeftTriggerAxis());
-        });
-        elevatorDefault.addRequirements(elevatorSystem);
-        elevatorNoLimit.addRequirements(elevatorSystem);
-
-        elevatorSystem.setDefaultCommand(elevatorDefault);
-        coJoystick.b().whileTrue(elevatorNoLimit);
+        }));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -133,20 +122,28 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
+        driveSystem.setStartingPose();
+
         Constants.imu.reset();
-        Constants.imu.setYaw(180);
+
+        Constants.imu.setYaw(0);
     }
 
     public Command getAutonomousCommand() {
-        AllianceStationID allianceStationID = DriverStation.getRawAllianceStation();
         boolean simpleauto = false;
         if (simpleauto) {
             return driveSystem.pathRelative(-1, 0, 0);
         } else if (allianceStationID.equals(AllianceStationID.Blue3)) {
-            return new PathPlannerAuto("Blue Coral");
+            return new PathPlannerAuto("Blue Coral").andThen(() -> {
+                driveSystem.resetFacingAngle();
+            });
         } else {
             return null;
         }
+    }
+
+    public void resetDriveFacingAngle() {
+        driveSystem.resetFacingAngle();
     }
 
     public Drive getDriveSubsystem(){

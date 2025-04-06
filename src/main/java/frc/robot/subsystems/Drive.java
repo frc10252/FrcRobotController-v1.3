@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -52,7 +53,9 @@ public class Drive extends SubsystemBase {
 
     private final CommandXboxController joystick;
 
-    private final SwerveRequest.FieldCentric driveFieldCentric;
+    private final SwerveRequest.FieldCentric driveFieldCentric = new SwerveRequest.FieldCentric()
+    .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 10% deadband
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);;
 
     private final SwerveRequest.FieldCentricFacingAngle driveFieldCentricFacingAngle = new SwerveRequest.FieldCentricFacingAngle()
             .withDeadband(Constants.MaxSpeed * 0.1)
@@ -61,7 +64,7 @@ public class Drive extends SubsystemBase {
 
     public double targetDrivetrainAngle;
     
-    public Drive(CommandSwerveDrivetrain drivetrain, SwerveRequest.FieldCentric driveFieldCentric, CommandXboxController joystick) {
+    public Drive(CommandSwerveDrivetrain drivetrain, CommandXboxController joystick) {
         this.joystick = joystick;
 
         modules = drivetrain.getModules();
@@ -70,7 +73,6 @@ public class Drive extends SubsystemBase {
 
         this.drivetrain = drivetrain;
 
-        this.driveFieldCentric = driveFieldCentric;
         driveFieldCentricFacingAngle.HeadingController.setPID(5,0.1,0.02);
         targetDrivetrainAngle = Constants.imu.getYaw().getValueAsDouble();
 
@@ -96,6 +98,23 @@ public class Drive extends SubsystemBase {
         } catch (Exception e) {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", e.getStackTrace());
         }
+    }
+
+    public void setStartingPose() {
+        AllianceStationID aid = DriverStation.getRawAllianceStation();
+        if (aid.equals(AllianceStationID.Red1)) {
+            resetPose(new Pose2d(10.425, 1.881, new Rotation2d(0)));
+        } else if (aid.equals(AllianceStationID.Red2)) {
+            resetPose(new Pose2d(10.425, 3.956, new Rotation2d(0)));
+        } else if (aid.equals(AllianceStationID.Red3)) {
+            resetPose(new Pose2d(10.425, 6.169, new Rotation2d(0)));
+        } else if (aid.equals(AllianceStationID.Blue1)) {
+            resetPose(new Pose2d(7.130, 6.169, new Rotation2d(0)));
+        } else if (aid.equals(AllianceStationID.Blue2)) {
+            resetPose(new Pose2d(7.130, 3.956, new Rotation2d(0)));
+        } else if (aid.equals(AllianceStationID.Blue3)) {
+            resetPose(new Pose2d(7.130, 1.881, new Rotation2d(0)));
+        }
 
     }
 
@@ -106,8 +125,6 @@ public class Drive extends SubsystemBase {
         field.setRobotPose(getPose());
 
         targetDrivetrainAngle -= joystick.getRightX()*0.1;
-        SmartDashboard.putNumber("test time", System.currentTimeMillis());
-
     }
 
     public CommandSwerveDrivetrain getDrivetrain() {
@@ -170,8 +187,13 @@ public class Drive extends SubsystemBase {
             .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate));
     }
 
+    public void resetFacingAngle() {
+        targetDrivetrainAngle = Math.toRadians(Constants.imu.getYaw().getValueAsDouble());
+    }
+
 
     public void cancelLastPath() {
+        resetFacingAngle();
         if (lastPath != null) lastPath.cancel();
     }
 
