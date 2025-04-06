@@ -18,6 +18,7 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 
 
@@ -47,6 +48,7 @@ public class RobotContainer {
 
     private final Drive driveSystem = new Drive(drivetrain);
     private final Intake intakeSystem = new Intake();
+    private final Elevator elevatorSystem = new Elevator();
 
     public RobotContainer() {
         configureBindings();
@@ -96,6 +98,14 @@ public class RobotContainer {
                 intakeSystem.setIntakePower(coJoystick.getRightY());
             })
         );
+
+        elevatorSystem.setDefaultCommand(new InstantCommand(() -> {
+            elevatorSystem.setSpeed(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
+        }));
+        
+        coJoystick.b().whileTrue(new InstantCommand(() -> {
+            elevatorSystem.setSpeedNoLimit(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
+        }));
 
 
        
