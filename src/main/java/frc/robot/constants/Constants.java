@@ -32,5 +32,20 @@ public class Constants {
     // public static SparkMax intakeNeoPitch = new SparkMax(INTAKE_NEO_PITCH_CAN_ID, MotorType.kBrushless);
     public static SparkMax intakeNeoWheel = new SparkMax(INTAKE_NEO_WHEEL_CAN_ID, MotorType.kBrushless);
 
+    public static final double JOYSTICK_YAW_MULTIPLIER = 4;
+    public static final double JOYSTICK_ELEVATOR_MULTIPLIER =-0.5;
+    public static final double ELEVATOR_SETPOINT_CONSTANT = 0.5;
+
+    // public static final double MAX_ELEVATOR_POSITION = -3.28; // 3.2 normal
+    // public static final double MIN_ELEVATOR_POSITION = 0;
+
+    public static final double MAX_ELEVATOR_POSITION = -2.6; // 3.2 normal
+    public static final double MIN_ELEVATOR_POSITION = 0;
+
+    public static final double ELEVATOR_SPEED_LIMIT_OFFSET = 0.6;
+    public static final double ELEVATOR_SPEED_LIMIT_MULTIPLIER = 0.3;
+    public static final double ELEVATOR_OFFSET_POS = 0;
+
+
 
 }

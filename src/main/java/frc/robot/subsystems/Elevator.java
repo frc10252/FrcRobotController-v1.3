@@ -10,8 +10,6 @@ public class Elevator extends SubsystemBase {
     private final SparkMax elevatorNeo1;
     private final SparkMax elevatorNeo2;
     private double power;
-    private static double targetPosition;
-    private PIDController pidController;
     private double neoOffset;
     public static double elevatorOffset = 0;
 
@@ -20,9 +18,7 @@ public class Elevator extends SubsystemBase {
         System.out.println("Initializing Elevator subsystem...");
         elevatorNeo1 = Constants.elevatorNeo1;
         elevatorNeo2 = Constants.elevatorNeo2;
-        targetPosition = getPosition()+neoOffset;
-        pidController = Constants.elevatorPidController;
-        calibrateBottomPosition();
+
 
         SparkMaxConfig elevatorNeo1Config = new SparkMaxConfig();
         elevatorNeo1Config.inverted(true);
@@ -66,17 +62,6 @@ public class Elevator extends SubsystemBase {
         return neoOffset;
     }
 
-    public void calibrateBottomPosition(){
-        //assume we're at the bottom position
-        // neoOffset = (-Constants.MIN_ELEVATOR_POSITION+getPosition()) *-1;
-        neoOffset = 0; //screw having good code we're compensating by having a functional elevator
-    }
-
-    public double getPercentageUp() {
-        double output = (targetPosition - getPosition()) / Constants.MAX_ELEVATOR_POSITION;
-        output = Math.max(0, Math.min(1, output));
-        return output;
-    }
 
     public void stop() {
         elevatorNeo1.stopMotor();
