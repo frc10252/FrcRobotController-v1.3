@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,17 +50,18 @@ public class RobotContainer {
 
 
 
-    private final Drive driveSystem = new Drive(drivetrain, drive);
+    private final Drive driveSystem = new Drive(drivetrain, drive, joystick);
     private final Intake intakeSystem = new Intake();
     private final Elevator elevatorSystem = new Elevator();
     private final MessageListener messageListenerSystem = new MessageListener();
 
     public RobotContainer() {
         configureBindings();
+        DriverStation.silenceJoystickConnectionWarning(true);
     }
 
     private void configureBindings() {
-        driveSystem.setDefaultCommand(joystick);
+        driveSystem.setDrivetrainDefaultCommand(joystick); 
 
         joystick.rightBumper().whileTrue(driveSystem.driveRobotCentric(joystick));
 
@@ -128,9 +132,24 @@ public class RobotContainer {
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        Constants.imu.reset();
+        Constants.imu.setYaw(180);
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        AllianceStationID allianceStationID = DriverStation.getRawAllianceStation();
+        boolean simpleauto = false;
+        if (simpleauto) {
+            return driveSystem.pathRelative(-1, 0, 0);
+        } else if (allianceStationID.equals(AllianceStationID.Blue3)) {
+            return new PathPlannerAuto("Blue Coral");
+        } else {
+            return null;
+        }
+    }
+
+    public Drive getDriveSubsystem(){
+        return driveSystem;
     }
 }

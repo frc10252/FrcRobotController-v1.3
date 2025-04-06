@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.constants.Constants;
 
 public class Telemetry {
     private final double MaxSpeed;
@@ -107,6 +108,9 @@ public class Telemetry {
         SignalLogger.writeDoubleArray("DriveState/ModuleStates", m_moduleStatesArray);
         SignalLogger.writeDoubleArray("DriveState/ModuleTargets", m_moduleTargetsArray);
         SignalLogger.writeDouble("DriveState/OdometryPeriod", state.OdometryPeriod, "seconds");
+
+        SmartDashboard.putNumber("target drive angle", Robot.m_robotContainer.getDriveSubsystem().targetDrivetrainAngle);
+        SmartDashboard.putNumber("imu value", Constants.imu.getYaw().getValueAsDouble());
 
         /* Telemeterize the pose to a Field2d */
         fieldTypePub.set("Field2d");

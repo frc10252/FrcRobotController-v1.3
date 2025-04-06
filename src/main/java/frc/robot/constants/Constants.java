@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.config.PIDConstants;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -8,7 +9,8 @@ import static edu.wpi.first.units.Units.*;
 
 
 public class Constants {
-    public static final int pigeonId = 15;
+    public static final int pigeonID = 15;
+    public static final Pigeon2 imu = new Pigeon2(Constants.pigeonID);
 
     public static final int ELEVATOR_NEO_CAN_ID_1 = 23;
     public static final int ELEVATOR_NEO_CAN_ID_2 = 22;

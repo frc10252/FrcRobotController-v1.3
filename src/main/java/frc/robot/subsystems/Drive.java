@@ -11,8 +11,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.constants.Constants;
@@ -22,6 +24,7 @@ import java.util.List;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveModule;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
@@ -33,7 +36,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 
-public class Drive implements Subsystem {
+public class Drive extends SubsystemBase {
     private CommandSwerveDrivetrain drivetrain;
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
@@ -41,20 +44,36 @@ public class Drive implements Subsystem {
 
     private SwerveModule[] modules = new SwerveModule[4];
     private final Field2d field = new Field2d();
-    private final Pigeon2 gyro = new Pigeon2(Constants.pigeonId);
+    private final Pigeon2 gyro = new Pigeon2(Constants.pigeonID);
 
     private final SwerveRequest.RobotCentric driveRobotCentric = new SwerveRequest.RobotCentric()
             .withDeadband(Constants.MaxSpeed * 0.1)
             .withRotationalDeadband(Constants.MaxAngularRate * 0.1);
 
+    private final CommandXboxController joystick;
+
     private final SwerveRequest.FieldCentric driveFieldCentric;
+
+    private final SwerveRequest.FieldCentricFacingAngle driveFieldCentricFacingAngle = new SwerveRequest.FieldCentricFacingAngle()
+            .withDeadband(Constants.MaxSpeed * 0.1)
+            .withRotationalDeadband(Constants.MaxAngularRate * 0.1)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    public double targetDrivetrainAngle;
     
-    public Drive(CommandSwerveDrivetrain drivetrain, SwerveRequest.FieldCentric driveFieldCentric) {
+    public Drive(CommandSwerveDrivetrain drivetrain, SwerveRequest.FieldCentric driveFieldCentric, CommandXboxController joystick) {
+        this.joystick = joystick;
+
         modules = drivetrain.getModules();
         kinematics = drivetrain.getKinematics();
         odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), getPositions());
+
         this.drivetrain = drivetrain;
+
         this.driveFieldCentric = driveFieldCentric;
+        driveFieldCentricFacingAngle.HeadingController.setPID(5,0.1,0.02);
+        targetDrivetrainAngle = Constants.imu.getYaw().getValueAsDouble();
+
         try {
             RobotConfig config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(this::getPose, this::resetPose, this::getSpeeds, this::driveRobotRelative, 
@@ -85,6 +104,10 @@ public class Drive implements Subsystem {
         odometry.update(gyro.getRotation2d(), getPositions());
 
         field.setRobotPose(getPose());
+
+        targetDrivetrainAngle -= joystick.getRightX()*0.1;
+        SmartDashboard.putNumber("test time", System.currentTimeMillis());
+
     }
 
     public CommandSwerveDrivetrain getDrivetrain() {
@@ -120,9 +143,10 @@ public class Drive implements Subsystem {
         return states;
     }
 
-    public void setDefaultCommand(CommandXboxController joystick) {
+    public void setDrivetrainDefaultCommand(CommandXboxController joystick) {
         drivetrain.setDefaultCommand(
-            driveFieldCentric(joystick)
+            // driveFieldCentric(joystick)
+            driveFieldCentricFacingAngle(joystick)
         );
     }
 
@@ -146,16 +170,25 @@ public class Drive implements Subsystem {
             .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate));
     }
 
+
     public void cancelLastPath() {
         if (lastPath != null) lastPath.cancel();
     }
 
     public Command driveFieldCentric(CommandXboxController joystick) {
         return drivetrain.applyRequest(() ->
-            driveFieldCentric.withVelocityX(-joystick.getLeftY() * Constants.MaxSpeed) // Drive forward with negative Y (forward)
+            driveFieldCentric.withVelocityX(joystick.getLeftY() * Constants.MaxSpeed) // Drive forward with negative Y (forward)
                 .withVelocityY(joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
                 .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
         );
+    }
+
+    public Command driveFieldCentricFacingAngle(CommandXboxController joystick) {
+        return drivetrain.applyRequest(() ->
+            driveFieldCentricFacingAngle.withVelocityX(joystick.getLeftY() * Constants.MaxSpeed) // Drive forward with negative Y (forward)
+                .withVelocityY(joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+                .withTargetDirection(new Rotation2d(targetDrivetrainAngle))
+                );
     }
 
     public Command pathRelative(double targetX, double targetY, double targetRotation) {
