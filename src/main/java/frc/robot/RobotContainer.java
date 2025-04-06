@@ -13,7 +13,6 @@ import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -41,12 +40,16 @@ public class RobotContainer {
     private final AllianceStationID allianceStationID = DriverStation.getRawAllianceStation();
     private final boolean isRed;
 
-    private final Drive driveSystem = new Drive(drivetrain, joystick);
-    private final Intake intakeSystem = new Intake();
-    private final Elevator elevatorSystem = new Elevator();
-    private final MessageListener messageListenerSystem = new MessageListener();
+    private final Drive driveSystem;
+    private final Intake intakeSystem;
+    private final Elevator elevatorSystem;
+    private final MessageListener messageListenerSystem;
 
     public RobotContainer() {
+        driveSystem = new Drive(drivetrain, joystick);
+        intakeSystem = new Intake();
+        elevatorSystem = new Elevator();
+        messageListenerSystem = new MessageListener();
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
 
@@ -116,6 +119,10 @@ public class RobotContainer {
         joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+
+        joystick.povUp().onTrue(driveSystem.runOnce(() -> {
+            driveSystem.setStartingPose();
+        }));
 
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));

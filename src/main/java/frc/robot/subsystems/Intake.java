@@ -9,10 +9,7 @@ public class Intake extends SubsystemBase{
     private final SparkMax intakeMotor;
 
     public Intake(){
-        intakeMotor = Constants.intakeNeoWheel;
-
-        System.out.println("resetting pitch motor encoder");
-        
+        intakeMotor = Constants.intakeNeoWheel;        
     }
     public void setIntakePower(double power){
         intakeMotor.set(power);
