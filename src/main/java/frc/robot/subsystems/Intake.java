@@ -12,6 +12,7 @@ public class Intake extends SubsystemBase{
         intakeMotor = Constants.intakeNeoWheel;
 
         System.out.println("resetting pitch motor encoder");
+        
     }
     public void setIntakePower(double power){
         intakeMotor.set(power);

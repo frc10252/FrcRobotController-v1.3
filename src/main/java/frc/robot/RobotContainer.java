@@ -87,25 +87,51 @@ public class RobotContainer {
             )
         ));
 
-        intakeSystem.setDefaultCommand(new InstantCommand(()->
-            {
-                intakeSystem.setIntakePower(coJoystick.getRightY()*Constants.JOYSTICK_CORAL_MULTIPLIER);
-            })
-        );
+        // InstantCommand intakeDefault = new InstantCommand(()->{intakeSystem.setIntakePower(coJoystick.getRightY()*Constants.JOYSTICK_CORAL_MULTIPLIER);});
+        // InstantCommand intakeFast = new InstantCommand(()->{intakeSystem.setIntakePower(coJoystick.getRightY());});
+        // intakeDefault.addRequirements(intakeSystem);
+        // intakeFast.addRequirements(intakeSystem);
 
-        coJoystick.leftBumper().whileTrue(new InstantCommand(()->
-            {
-                intakeSystem.setIntakePower(coJoystick.getRightY());
-            })
-        );
 
-        elevatorSystem.setDefaultCommand(new InstantCommand(() -> {
-            elevatorSystem.setSpeed(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
-        }));
+        // intakeSystem.setDefaultCommand(intakeDefault);
+        // coJoystick.leftBumper().whileTrue(intakeFast);
+
+        // elevatorSystem.setDefaultCommand(new InstantCommand(() -> {
+        //     elevatorSystem.setSpeed(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
+        // }));
         
-        coJoystick.b().whileTrue(new InstantCommand(() -> {
-            elevatorSystem.setSpeedNoLimit(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
-        }));
+        // coJoystick.b().whileTrue(new InstantCommand(() -> {
+        //     elevatorSystem.setSpeedNoLimit(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
+        // }));
+        // DELET LATER
+
+        // Assuming intakeSystem and coJoystick are already defined and initialized
+
+        // Define commands for the intake system with addRequirements
+        InstantCommand intakeDefault = new InstantCommand(() -> {
+            intakeSystem.setIntakePower(coJoystick.getRightY() * Constants.JOYSTICK_CORAL_MULTIPLIER);
+        });
+        InstantCommand intakeFast = new InstantCommand(() -> {
+            intakeSystem.setIntakePower(coJoystick.getRightY());
+        });
+        intakeDefault.addRequirements(intakeSystem);
+        intakeFast.addRequirements(intakeSystem);
+
+        intakeSystem.setDefaultCommand(intakeDefault);
+        coJoystick.leftBumper().whileTrue(intakeFast);
+
+        // Define commands for the elevator system with addRequirements
+        InstantCommand elevatorDefault = new InstantCommand(() -> {
+            elevatorSystem.setSpeed(coJoystick.getRightTriggerAxis() - coJoystick.getLeftTriggerAxis());
+        });
+        InstantCommand elevatorNoLimit = new InstantCommand(() -> {
+            elevatorSystem.setSpeedNoLimit(coJoystick.getRightTriggerAxis() - coJoystick.getLeftTriggerAxis());
+        });
+        elevatorDefault.addRequirements(elevatorSystem);
+        elevatorNoLimit.addRequirements(elevatorSystem);
+
+        elevatorSystem.setDefaultCommand(elevatorDefault);
+        coJoystick.b().whileTrue(elevatorNoLimit);
 
 
        
