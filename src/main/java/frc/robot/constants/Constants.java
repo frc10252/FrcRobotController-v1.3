@@ -1,7 +1,9 @@
-package frc.robot.generated;
+package frc.robot.constants;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.config.PIDConstants;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -9,9 +11,26 @@ import static edu.wpi.first.units.Units.*;
 public class Constants {
     public static final int pigeonId = 15;
 
+    public static final int ELEVATOR_NEO_CAN_ID_1 = 23;
+    public static final int ELEVATOR_NEO_CAN_ID_2 = 22;
+    public static final int INTAKE_NEO_WHEEL_CAN_ID = 24; 
+
     public static final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     public static final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     
     public static final PIDConstants translationConstants = new PIDConstants(5.0, 0.0, 0.0); //original p 5
     public static final PIDConstants rotationConstants = new PIDConstants(5.0, 0.0, 0.0); //original p 5
+
+    //Network
+    public static final int IP_ADDRESS_LISTEN_PORT = 1234;
+    public static final String LISTEN_IP_ADDRESS = "0.0.0.0";
+
+    //Motors + IDs
+    public static SparkMax elevatorNeo1 = new SparkMax(ELEVATOR_NEO_CAN_ID_1, MotorType.kBrushless);
+    public static SparkMax elevatorNeo2 = new SparkMax(ELEVATOR_NEO_CAN_ID_2, MotorType.kBrushless);
+
+    // public static SparkMax intakeNeoPitch = new SparkMax(INTAKE_NEO_PITCH_CAN_ID, MotorType.kBrushless);
+    public static SparkMax intakeNeoWheel = new SparkMax(INTAKE_NEO_WHEEL_CAN_ID, MotorType.kBrushless);
+
+
 }
