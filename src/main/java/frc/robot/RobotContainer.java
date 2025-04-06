@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -32,6 +34,8 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
 
+    private final Orchestra orchestra = new Orchestra();
+
     private final CommandXboxController joystick = new CommandXboxController(0);
     private final CommandXboxController coJoystick = new CommandXboxController(1);
 
@@ -52,6 +56,17 @@ public class RobotContainer {
         messageListenerSystem = new MessageListener();
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
+
+        orchestra.addInstrument(new TalonFX(1));
+        orchestra.addInstrument(new TalonFX(2));
+        orchestra.addInstrument(new TalonFX(3));
+        orchestra.addInstrument(new TalonFX(4));
+        orchestra.addInstrument(new TalonFX(5));
+        orchestra.addInstrument(new TalonFX(6));
+        orchestra.addInstrument(new TalonFX(7));
+        orchestra.addInstrument(new TalonFX(8));
+
+        orchestra.loadMusic("rickroll.chrp");
 
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent()) {
@@ -79,6 +94,13 @@ public class RobotContainer {
         } else {
             joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
         }
+
+        joystick.povDown().onTrue(new InstantCommand(() -> {
+            orchestra.play();
+        }));
+        joystick.povRight().onTrue(new InstantCommand(() -> {
+            orchestra.stop();
+        }));
         
         joystick.y().onTrue(driveSystem.runOnce(() -> {
             driveSystem.cancelLastPath();
@@ -156,5 +178,9 @@ public class RobotContainer {
 
     public Drive getDriveSubsystem(){
         return driveSystem;
+    }
+
+    public MessageListener getMessageListener() {
+        return messageListenerSystem;
     }
 }

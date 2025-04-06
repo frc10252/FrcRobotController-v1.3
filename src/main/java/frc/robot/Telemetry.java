@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.constants.Constants;
+import frc.robot.util.AprilTagPIDReading;
 
 public class Telemetry {
     private final double MaxSpeed;
@@ -111,6 +112,11 @@ public class Telemetry {
 
         SmartDashboard.putNumber("target drive angle", Robot.m_robotContainer.getDriveSubsystem().targetDrivetrainAngle);
         SmartDashboard.putNumber("imu value", Constants.imu.getYaw().getValueAsDouble());
+
+        AprilTagPIDReading atr = Robot.m_robotContainer.getMessageListener().getAprilTagPIDReading();
+        SmartDashboard.putNumber("AT X", atr.getMetersX());
+        SmartDashboard.putNumber("AT Y", atr.getMetersY());
+        SmartDashboard.putNumber("AT Rot", atr.getTagRotation());
 
         /* Telemeterize the pose to a Field2d */
         fieldTypePub.set("Field2d");
