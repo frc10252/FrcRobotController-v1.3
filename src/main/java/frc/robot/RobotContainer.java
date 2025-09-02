@@ -26,7 +26,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.MessageListener;
 
-
+import java.util.*;
 
 public class RobotContainer {
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
@@ -66,7 +66,7 @@ public class RobotContainer {
         orchestra.addInstrument(new TalonFX(7));
         orchestra.addInstrument(new TalonFX(8));
 
-        orchestra.loadMusic("rickroll.chrp");
+        orchestra.loadMusic("rushe.chrp");
 
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent()) {
@@ -88,6 +88,7 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
+        joystick.povLeft().whileTrue(driveSystem.foo(0.5));
 
         if (Robot.isSimulation()) {
             joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path

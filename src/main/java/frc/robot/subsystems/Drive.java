@@ -182,8 +182,8 @@ public class Drive extends SubsystemBase {
     }
 
     public Command driveRobotCentric(CommandXboxController joystick) {
-        return drivetrain.applyRequest(() -> driveRobotCentric.withVelocityX(-joystick.getLeftY() * Constants.MaxSpeed)
-            .withVelocityY(-joystick.getLeftX() * Constants.MaxSpeed)
+        return drivetrain.applyRequest(() -> driveRobotCentric.withVelocityX(-joystick.getLeftY())
+            .withVelocityY(-joystick.getLeftX())
             .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate));
     }
 
@@ -199,16 +199,16 @@ public class Drive extends SubsystemBase {
 
     public Command driveFieldCentric(CommandXboxController joystick) {
         return drivetrain.applyRequest(() ->
-            driveFieldCentric.withVelocityX(joystick.getLeftY() * Constants.MaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+            driveFieldCentric.withVelocityX(joystick.getLeftY()) // Drive forward with negative Y (forward)
+                .withVelocityY(joystick.getLeftX()) // Drive left with negative X (left)
                 .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
         );
     }
 
     public Command driveFieldCentricFacingAngle(CommandXboxController joystick) {
         return drivetrain.applyRequest(() ->
-            driveFieldCentricFacingAngle.withVelocityX(joystick.getLeftY() * Constants.MaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+            driveFieldCentricFacingAngle.withVelocityX(joystick.getLeftY()) // Drive forward with negative Y (forward)
+                .withVelocityY(joystick.getLeftX()) // Drive left with negative X (left)
                 .withTargetDirection(new Rotation2d(targetDrivetrainAngle))
                 );
     }
@@ -254,5 +254,11 @@ public class Drive extends SubsystemBase {
 
     public Command pathAprilTag(AprilTagPIDReading reading) {
         return pathRelative(reading.getMetersX(), reading.getMetersY(), reading.getTagRotation());
+    }
+
+    public Command foo(double value) {
+        return drivetrain.applyRequest(() -> driveRobotCentric.withVelocityX(0)
+            .withVelocityY(0)
+            .withRotationalRate(value * Constants.MaxAngularRate));
     }
 }
