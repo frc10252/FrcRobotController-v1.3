@@ -88,7 +88,6 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
-        joystick.povLeft().whileTrue(driveSystem.foo(0.5));
 
         if (Robot.isSimulation()) {
             joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
