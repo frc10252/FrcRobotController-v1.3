@@ -88,7 +88,7 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
-        joystick.povLeft().whileTrue(driveSystem.foo(0.5));
+     
 
         if (Robot.isSimulation()) {
             joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
@@ -136,6 +136,9 @@ public class RobotContainer {
         coJoystick.b().whileTrue(elevatorSystem.run(() -> {
             elevatorSystem.setSpeedNoLimit(coJoystick.getRightTriggerAxis() - coJoystick.getLeftTriggerAxis());
         }));
+
+        
+        coJoystick.a().whileTrue(driveSystem.xxx());
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
