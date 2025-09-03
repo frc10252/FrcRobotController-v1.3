@@ -256,9 +256,10 @@ public class Drive extends SubsystemBase {
         return pathRelative(reading.getMetersX(), reading.getMetersY(), reading.getTagRotation());
     }
 
-    public Command foo(double value) {
-        return drivetrain.applyRequest(() -> driveRobotCentric.withVelocityX(0)
-            .withVelocityY(0)
-            .withRotationalRate(value * Constants.MaxAngularRate));
+    public Command gawkgawk(CommandXboxController joystick) {
+        //chigga balls
+        return drivetrain.applyRequest(()->
+            driveRobotCentric.withRotationalRate(-joystick.getRightX()*Constants.MaxAngularRate)
+        );
     }
 }
