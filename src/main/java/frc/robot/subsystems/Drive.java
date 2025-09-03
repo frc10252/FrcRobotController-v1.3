@@ -257,7 +257,6 @@ public class Drive extends SubsystemBase {
     }
 
     public Command gawkgawk(CommandXboxController joystick) {
-        //chigga balls
         return drivetrain.applyRequest(()->
             driveRobotCentric.withRotationalRate(-joystick.getRightX()*Constants.MaxAngularRate)
         );
