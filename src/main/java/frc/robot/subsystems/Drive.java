@@ -214,15 +214,20 @@ public class Drive extends SubsystemBase {
     }
 
     public Command pathRelative(double targetX, double targetY, double targetRotation) {
+        System.out.println("path relative with target: " + targetX + ", " + targetY + ", " + targetRotation);
+        System.out.println("current pose: " + getPose());
+        
         Pose2d currentPose = getPose();
 
         Translation2d localOffset = new Translation2d(targetX, targetY);
         Translation2d fieldOffset = localOffset.rotateBy(currentPose.getRotation());
         
-        Pose2d startPose = new Pose2d(
-            currentPose.getTranslation(),
-            currentPose.getRotation()
-        );
+        // Pose2d startPose = new Pose2d(
+        //     currentPose.getTranslation(),
+        //     currentPose.getRotation()
+        // );
+
+        Pose2d startPose = currentPose;
 
         Rotation2d endHeading = currentPose.getRotation().plus(new Rotation2d(targetRotation));
 
@@ -234,8 +239,8 @@ public class Drive extends SubsystemBase {
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
             new PathConstraints(
-                4.0, 
-                4.0,
+                0.5, 
+                0.5,
                 Units.degreesToRadians(360), 
                 Units.degreesToRadians(540)
             ),

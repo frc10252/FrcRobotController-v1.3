@@ -77,7 +77,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driveSystem.setDrivetrainDefaultCommand(joystick); 
+        driveSystem.setDrivetrainDefaultCommand(joystick);
 
         joystick.rightBumper().whileTrue(driveSystem.driveRobotCentric(joystick));
         joystick.rightBumper().onFalse(new InstantCommand(() -> {
@@ -85,14 +85,22 @@ public class RobotContainer {
         }));
 
         joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
+        joystick.b().whileTrue(drivetrain.applyRequest(
+                () -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
 
         if (Robot.isSimulation()) {
-            joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
+            // joystick.x().onTrue(driveSystem.pathRelative(0,0,1)); // Random test path
+            joystick.x().onTrue(
+                    new InstantCommand(() -> {
+                        driveSystem.pathRelative(1, 1, 0).schedule();
+                    }, driveSystem));
         } else {
-            joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
+            // joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
+            // joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0));
+            joystick.x().onTrue(
+                    new InstantCommand(() -> {
+                        driveSystem.pathRelative(1, 1, 0).schedule();
+                    }, driveSystem));
         }
 
         joystick.povDown().onTrue(new InstantCommand(() -> {
@@ -101,24 +109,23 @@ public class RobotContainer {
         joystick.povRight().onTrue(new InstantCommand(() -> {
             orchestra.stop();
         }));
-        
+
         joystick.y().onTrue(driveSystem.runOnce(() -> {
             driveSystem.cancelLastPath();
         }).andThen(
-            driveSystem.driveFieldCentric(joystick)
-            //driveSystem.driveFieldCentricFacingAngle(joystick)
+                driveSystem.driveFieldCentric(joystick)
+        // driveSystem.driveFieldCentricFacingAngle(joystick)
         ));
-
 
         // intakeSystem.setDefaultCommand(intakeDefault);
         // coJoystick.leftBumper().whileTrue(intakeFast);
 
         // elevatorSystem.setDefaultCommand(new InstantCommand(() -> {
-        //     elevatorSystem.setSpeed(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
+        // elevatorSystem.setSpeed(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
         // }));
-        
+
         // coJoystick.b().whileTrue(new InstantCommand(() -> {
-        //     elevatorSystem.setSpeedNoLimit(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
+        // elevatorSystem.setSpeedNoLimit(coJoystick.getRightTriggerAxis()-coJoystick.getLeftTriggerAxis());
         // }));
         // DELET LATER
 
@@ -176,7 +183,7 @@ public class RobotContainer {
         driveSystem.resetFacingAngle();
     }
 
-    public Drive getDriveSubsystem(){
+    public Drive getDriveSubsystem() {
         return driveSystem;
     }
 
