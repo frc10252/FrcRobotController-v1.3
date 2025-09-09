@@ -166,9 +166,10 @@ public class RobotContainer {
         if (simpleauto) {
             return driveSystem.pathRelative(-1, 0, 0);
         } else if (allianceStationID.equals(AllianceStationID.Blue3)) {
-            return new PathPlannerAuto("Blue Coral").andThen(() -> {
-                driveSystem.resetFacingAngle();
-            });
+            // return new PathPlannerAuto("Blue Coral").andThen(() -> {
+            //     driveSystem.resetFacingAngle();
+            // });
+            return new PathPlannerAuto("a1").andThen(()->{driveSystem.resetFacingAngle();});
         } else {
             return null;
         }
