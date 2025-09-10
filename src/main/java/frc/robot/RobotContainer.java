@@ -91,11 +91,12 @@ public class RobotContainer {
 
         joystick.povLeft().whileTrue(driveSystem.gawkgawk(joystick));
 
-        if (Robot.isSimulation()) {
-            joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
-        } else {
-            joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
-        }
+        // if (Robot.isSimulation()) {
+        //     joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
+        // } else {
+        //     joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
+        // }
+        joystick.x().onTrue(new InstantCommand(()->{Command autoCommand = new PathPlannerAuto("a1").andThen(()->{driveSystem.resetFacingAngle();}); autoCommand.schedule();}));
 
         joystick.povDown().onTrue(new InstantCommand(() -> {
             orchestra.play();
