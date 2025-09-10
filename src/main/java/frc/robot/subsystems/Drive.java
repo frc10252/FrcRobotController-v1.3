@@ -220,7 +220,7 @@ public class Drive extends SubsystemBase {
         Pose2d currentPose = getPose();
 
         Translation2d localOffset = new Translation2d(targetX, targetY);
-        Translation2d fieldOffset = localOffset.rotateBy(currentPose.getRotation());
+        Translation2d fieldOffset = localOffset.rotateBy(currentPose.getRotation ());
         
         // Pose2d startPose = new Pose2d(
         //     currentPose.getTranslation(),
@@ -236,13 +236,25 @@ public class Drive extends SubsystemBase {
             endHeading
         );
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(startPose, endPose);
+        // PathPlannerPath path = new PathPlannerPath(
+        //     waypoints,
+        //     new PathConstraints(
+        //         0.5, 
+        //         0.5,
+        //         Units.degreesToRadians(360), 
+        //         Units.degreesToRadians(540)
+        //     ),
+        //     null, // Ideal starting state can be null for on-the-fly paths
+        //     new GoalEndState(0.0, endHeading) // Final heading matches endPos heading
+        // );
+
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
             new PathConstraints(
                 0.5, 
                 0.5,
-                Units.degreesToRadians(360), 
-                Units.degreesToRadians(540)
+                Units.degreesToRadians(0), 
+                Units.degreesToRadians(0)
             ),
             null, // Ideal starting state can be null for on-the-fly paths
             new GoalEndState(0.0, endHeading) // Final heading matches endPos heading
@@ -255,7 +267,7 @@ public class Drive extends SubsystemBase {
         
         return lastPath;
 
-    }
+    } 
 
     public Command pathAprilTag(AprilTagPIDReading reading) {
         return pathRelative(reading.getMetersX(), reading.getMetersY(), reading.getTagRotation());
