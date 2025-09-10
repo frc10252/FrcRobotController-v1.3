@@ -102,10 +102,10 @@ public class RobotContainer {
                 new PathPlannerAuto("haro").schedule();
             }));
             // joystick.x().onTrue(driveSystem.pathRelative(0,0,1)); // Random test path
-            joystick.x().onTrue(
-                    new InstantCommand(() -> {
-                        driveSystem.pathRelative(1, 1, 0).schedule();
-                    }, driveSystem));
+            // joystick.x().onTrue(
+            //         new InstantCommand(() -> {
+            //             driveSystem.pathRelative(1, 1, 0).schedule();
+            //         }, driveSystem));
         } else {
             // joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
             // joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0));
