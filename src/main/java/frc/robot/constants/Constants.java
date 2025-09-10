@@ -20,7 +20,7 @@ public class Constants {
     public static final double MaxAngularRate = RotationsPerSecond.of(0.25).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     
     public static final PIDConstants translationConstants = new PIDConstants(5.0, 0.0, 0.0); //original p 5
-    public static final PIDConstants rotationConstants = new PIDConstants(5.0, 0.0, 0.0); //original p 5
+    public static final PIDConstants rotationConstants = new PIDConstants(1.0, 0.0, 0.0); //original p 5
 
     //Network
     public static final int IP_ADDRESS_LISTEN_PORT = 1234;
