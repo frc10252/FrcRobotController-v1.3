@@ -78,6 +78,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         driveSystem.setDrivetrainDefaultCommand(joystick); 
+        
 
         joystick.rightBumper().whileTrue(driveSystem.driveRobotCentric(joystick));
         joystick.rightBumper().onFalse(new InstantCommand(() -> {
@@ -89,13 +90,21 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
 
-        joystick.povLeft().whileTrue(driveSystem.gawkgawk(joystick));
-
         if (Robot.isSimulation()) {
-            joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
+            //joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
+            /*joystick.x().onTrue(new InstantCommand(()->{
+                System.out.println("X PRESSED");
+            }));*/
+
+
+            joystick.x().onTrue(new InstantCommand(()->{
+                new PathPlannerAuto("haro").schedule();
+            }));
         } else {
             joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
         }
+
+
 
         joystick.povDown().onTrue(new InstantCommand(() -> {
             orchestra.play();

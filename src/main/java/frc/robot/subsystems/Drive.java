@@ -256,9 +256,4 @@ public class Drive extends SubsystemBase {
         return pathRelative(reading.getMetersX(), reading.getMetersY(), reading.getTagRotation());
     }
 
-    public Command gawkgawk(CommandXboxController joystick) {
-        return drivetrain.applyRequest(()->
-            driveRobotCentric.withRotationalRate(-joystick.getRightX()*Constants.MaxAngularRate)
-        );
-    }
 }
