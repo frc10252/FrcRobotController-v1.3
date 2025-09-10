@@ -213,6 +213,13 @@ public class Drive extends SubsystemBase {
                 );
     }
 
+    /**
+     * 
+     * @param targetX
+     * @param targetY
+     * @param targetRotation in radians!!
+     * @return
+     */
     public Command pathRelative(double targetX, double targetY, double targetRotation) {
         System.out.println("path relative with target: " + targetX + ", " + targetY + ", " + targetRotation);
         System.out.println("current pose: " + getPose());
@@ -268,6 +275,47 @@ public class Drive extends SubsystemBase {
         return lastPath;
 
     } 
+
+    public Command driveToPose(Pose2d endPose){
+        Pose2d startPose = getPose();
+        List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(startPose, endPose);
+        Rotation2d endHeading = endPose.getRotation();
+
+        PathPlannerPath path = new PathPlannerPath(
+            waypoints,
+            new PathConstraints(
+                0.5, 
+                0.5,
+                Units.degreesToRadians(0), 
+                Units.degreesToRadians(0)
+            ),
+            null, // Ideal starting state can be null for on-the-fly paths
+            new GoalEndState(0.0, endHeading) // Final heading matches endPos heading
+        );
+
+        path.preventFlipping = true;
+
+        cancelLastPath();
+        lastPath = AutoBuilder.followPath(path);
+        
+        return lastPath;
+    }
+
+    public Command driveToBlueAlgae(int position)
+    {
+        
+        Pose2d[] positionList = new Pose2d[]{
+            new Pose2d(2.92, 4.06, new Rotation2d(Math.toDegrees(0))),
+            new Pose2d(3.68, 2.66, new Rotation2d(Math.toDegrees(60))),
+            new Pose2d(5.28, 2.66, new Rotation2d(Math.toDegrees(120))),
+            new Pose2d(6.11, 4.02, new Rotation2d(Math.toDegrees(180))),
+            new Pose2d(5.29, 5.35, new Rotation2d(Math.toDegrees(240))),
+            new Pose2d(3.7, 5.41, new Rotation2d(Math.toDegrees(300)))
+            
+        };
+
+        return driveToPose(positionList[position]);
+    }
 
     public Command pathAprilTag(AprilTagPIDReading reading) {
         return pathRelative(reading.getMetersX(), reading.getMetersY(), reading.getTagRotation());

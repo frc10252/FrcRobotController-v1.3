@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -92,14 +93,16 @@ public class RobotContainer {
             // joystick.x().onTrue(driveSystem.pathRelative(0,0,1)); // Random test path
             joystick.x().onTrue(
                     new InstantCommand(() -> {
-                        driveSystem.pathRelative(1, 1, 0).schedule();
+                        // driveSystem.pathRelative(1, 1, 0).schedule();
+                        // driveSystem.driveToPose(new Pose2d(4,4,new Rotation2d(0))).schedule();
+                        driveSystem.driveToBlueAlgae(2).schedule();
                     }, driveSystem));
         } else {
             // joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
             // joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0));
             joystick.x().onTrue(
                     new InstantCommand(() -> {
-                        driveSystem.pathRelative(1, 1, 0).schedule();
+                        driveSystem.pathRelative(1, 1, Math.toDegrees(90)).schedule();
                     }, driveSystem));
         }
 
