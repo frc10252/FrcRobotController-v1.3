@@ -93,9 +93,9 @@ public class RobotContainer {
             // joystick.x().onTrue(driveSystem.pathRelative(0,0,1)); // Random test path
             joystick.x().onTrue(
                     new InstantCommand(() -> {
-                        // driveSystem.pathRelative(1, 1, 0).schedule();
+                        driveSystem.pathRelative(1, 1, Math.toDegrees(90)).schedule();
                         // driveSystem.driveToPose(new Pose2d(4,4,new Rotation2d(0))).schedule();
-                        driveSystem.driveToBlueAlgae(2).schedule();
+                        // driveSystem.driveToBlueAlgae(2).schedule();
                     }, driveSystem));
         } else {
             // joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
