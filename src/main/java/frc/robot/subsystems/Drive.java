@@ -296,15 +296,15 @@ public class Drive extends SubsystemBase {
         Pose2d cpose = getPose();
         List<Waypoint> wp = PathPlannerPath.waypointsFromPoses(cpose, tpose);
         PathPlannerPath path = new PathPlannerPath(
-            waypoints,
+            wp,
             new PathConstraints(
-                0.5, 
-                0.5,
-                Units.degreesToRadians(0), 
-                Units.degreesToRadians(0)
+                4.0, //max v
+                4.0, //accel
+                Units.degreesToRadians(360),
+                Units.degreesToRadians(540)
             ),
-            null, // Ideal starting state can be null for on-the-fly paths
-            new GoalEndState(0.0, endHeading) // Final heading matches endPos heading
+            null,
+            new GoalEndState(endv, tpose.getRotation())
         );
         path.preventFlipping = true;
         cancelLastPath();
@@ -325,42 +325,7 @@ public class Drive extends SubsystemBase {
             new Pose2d(3.7, 5.41, new Rotation2d(Math.toDegrees(300)))
         };
 
-        return driveToPose(positionList[position]);
-    }
-
-    public Command gotopos(double tx, double ty, double tr) {
-        Pose2d tpose = new Pose2d(tx, ty, new Rotation2d(tr));
-        return gopose(tpose);
-    }
-
-    public Command gawkgawk(CommandXboxController joystick) {
-        return drivetrain.applyRequest(()->
-            driveRobotCentric.withRotationalRate(-joystick.getRightX()*Constants.MaxAngularRate)
-        );
-    }
-
-    public Command gopose(Pose2d tpose) {
-        return gopose(tpose, 0.0);
-    }
-
-    public Command gopose(Pose2d tpose, double endv) {
-        Pose2d cpose = getPose();
-        List<Waypoint> wp = PathPlannerPath.waypointsFromPoses(cpose, tpose);
-        PathPlannerPath path = new PathPlannerPath(
-            wp,
-            new PathConstraints(
-                4.0, //max v
-                4.0, //accel
-                Units.degreesToRadians(360),
-                Units.degreesToRadians(540)
-            ),
-            null,
-            new GoalEndState(endv, tpose.getRotation())
-        );
-        path.preventFlipping = true;
-        cancelLastPath();
-        lastPath = AutoBuilder.followPath(path);
-        return lastPath;
+        return gopose(positionList[position]);
     }
 
     public Command gotopos(double tx, double ty) {
@@ -373,6 +338,8 @@ public class Drive extends SubsystemBase {
         Pose2d tpose = new Pose2d(tx, ty, new Rotation2d(tr));
         return gopose(tpose);
     }
+
+
 
     public Command updateRobotPos(Pose2d realaprpos, Pose2d simaprpos, Pose2d bobpos) {
         Translation2d bobtosim = simaprpos.getTranslation().minus(bobpos.getTranslation());
