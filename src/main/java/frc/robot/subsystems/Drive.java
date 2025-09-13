@@ -362,10 +362,12 @@ public class Drive extends SubsystemBase {
         return gopose(tpose);
     }
 
-    public Command updateRobotPos(Pose2d apos, Pose2d bobpos) {
-        Translation2d bobtoa = apos.getTranslation().minus(bobpos.getTranslation());
-        Translation2d deltapos = apos.getTranslation().minus(bobtoa);
-        Pose2d res = new Pose2d(deltapos, bobpos.getRotation());
+    public Command updateRobotPos(Pose2d realaprpos, Pose2d simaprpos, Pose2d bobpos) {
+        Translation2d bobtosim = simaprpos.getTranslation().minus(bobpos.getTranslation());
+        Translation2d bobtoreal = realaprpos.getTranslation().minus(bobpos.getTranslation());
+        Translation2d poscorr = bobtoreal.minus(bobtosim);
+        Translation2d corrpos = bobpos.getTranslation().plus(poscorr);
+        Pose2d res = new Pose2d(corrpos, bobpos.getRotation());
         resetPose(res);
         return this.runOnce(()->{});
     }
