@@ -64,6 +64,12 @@ public class Drive extends SubsystemBase {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public double targetDrivetrainAngle;
+
+    private final PIDController centeringXController;
+    private final PIDController centeringYController;
+    private final PIDController centeringRotationController;
+    private boolean iscent = false;
+    private AprilTagPIDReading lapriltagreading = null;
     
     public Drive(CommandSwerveDrivetrain drivetrain, CommandXboxController joystick) {
         this.joystick = joystick;
@@ -76,6 +82,16 @@ public class Drive extends SubsystemBase {
 
         driveFieldCentricFacingAngle.HeadingController.setPID(5,0.1,0.02);
         targetDrivetrainAngle = Constants.imu.getYaw().getValueAsDouble();
+        
+        // Initialize PID controllers for centering with placeholder values
+        centeringXController = new PIDController(1.0, 0.0, 0.0);
+        centeringYController = new PIDController(1.0, 0.0, 0.0);
+        centeringRotationController = new PIDController(1.0, 0.0, 0.0);
+        
+        // Set tolerances for centering (when we consider the robot "centered")
+        centeringXController.setTolerance(0.05); // 5cm tolerance
+        centeringYController.setTolerance(0.05); // 5cm tolerance
+        centeringRotationController.setTolerance(Math.toRadians(2)); // 2 degree tolerance
 
         try {
             RobotConfig config = RobotConfig.fromGUISettings();

@@ -134,7 +134,6 @@ public class AprilTagListener extends SubsystemBase {
         return data != null ? data.pitchAngle : 0.0f;
     }
     
-    @Override
     public void close() {
         isRunning = false;
         if (udpListenerThread != null) {
