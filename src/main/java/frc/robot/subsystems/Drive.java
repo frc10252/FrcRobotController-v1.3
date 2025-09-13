@@ -371,4 +371,31 @@ public class Drive extends SubsystemBase {
         resetPose(res);
         return this.runOnce(()->{});
     }
+
+    /*
+     * given input:
+            [
+                Detection object:
+                tag_family = b'tag36h11'
+                tag_id = 3
+                hamming = 0
+                decision_margin = 76.23822021484375
+                homography = [[ 7.29492675e+01  3.06396282e+01  4.44066989e+02]
+                [-1.11262412e+00  7.35981029e+01  2.50653218e+02]
+                [ 1.67268145e-03  6.64248943e-02  1.00000000e+00]]
+                center = [444.06698853 250.653218  ]
+                corners = [[377.32473755 305.57714844]
+                [512.73956299 302.53668213]
+                [520.05108643 188.12393188]
+                [365.35809326 191.18711853]]
+                pose_R = None
+                pose_t = None
+                pose_err = None
+            ]
+     * look up actual position data
+     * 0.165m x 0.165m = apr tag sz
+     * and given pixel res of img
+     * return an x,y,theta (pose2d (x,y) and rotation2d (theta))
+     * returned value should be the april tags distance from the robot
+     */
 }
