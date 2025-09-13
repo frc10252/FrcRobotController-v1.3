@@ -363,10 +363,10 @@ public class Drive extends SubsystemBase {
     }
 
     public Command updateRobotPos(Pose2d apos, Pose2d bobpos) {
-        Translation2d bobtoa = bobpos.getTranslation().minus(apos.getTranslation());
-        Translation2d rbobpos = apos.getTranslation().minus(bobtoa);
-        Pose2d respose = new Pose2d(rbobpos, bobpos.getRotation());
-        resetPose(respose);
+        Translation2d bobtoa = apos.getTranslation().minus(bobpos.getTranslation());
+        Translation2d deltapos = apos.getTranslation().minus(bobtoa);
+        Pose2d res = new Pose2d(deltapos, bobpos.getRotation());
+        resetPose(res);
         return this.runOnce(()->{});
     }
 }
