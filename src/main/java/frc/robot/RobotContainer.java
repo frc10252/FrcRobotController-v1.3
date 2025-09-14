@@ -49,6 +49,8 @@ public class RobotContainer {
     private final Intake intakeSystem;
     private final Elevator elevatorSystem;
     private final MessageListener messageListenerSystem;
+    
+    private int cposidx = 0;
 
     public RobotContainer() {
         driveSystem = new Drive(drivetrain, joystick);
@@ -101,9 +103,10 @@ public class RobotContainer {
             new Pose2d(3.7, 5.41, new Rotation2d(Math.toDegrees(300)))
         };
 
-        int i = 0;
-        joystick.povUp().onTrue(driveSystem.gopose(poslist[i]));
-        i+=1; i=i%6; //normalize
+        joystick.povUp().onTrue(new InstantCommand(()->{
+            driveSystem.gopose(poslist[cposidx]).schedule();
+            cposidx = (cposidx+1)%poslist.length;
+        }));
 
         // if (Robot.isSimulation()) {
         //     joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
