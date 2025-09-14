@@ -25,6 +25,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.MessageListener;
+import frc.robot.commands.CenterOnAprilTag;
 
 import java.util.*;
 
@@ -104,7 +105,6 @@ public class RobotContainer {
         joystick.povRight().onTrue(new InstantCommand(() -> {
             orchestra.stop();
         }));
-        joystick.povLeft().whileTrue(driveSystem.teleport(3.0, 3.0, 0.0));
         
         joystick.y().onTrue(driveSystem.runOnce(() -> {
             driveSystem.cancelLastPath();
@@ -146,10 +146,6 @@ public class RobotContainer {
         joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        joystick.povUp().onTrue(driveSystem.runOnce(() -> {
-            driveSystem.setStartingPose();
-        }));
 
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));

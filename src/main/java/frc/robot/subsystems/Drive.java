@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.constants.Constants;
 import frc.robot.util.AprilTagPIDReading;
+import edu.wpi.first.math.controller.PIDController;
 
 import java.util.List;
 
@@ -63,6 +64,12 @@ public class Drive extends SubsystemBase {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public double targetDrivetrainAngle;
+
+    private final PIDController centxcontr;
+    private final PIDController centxcontr;
+    private final PIDController centrcontr;
+    private boolean iscent = false;
+    private AprilTagPIDReading lapriltagreading = null;
     
     public Drive(CommandSwerveDrivetrain drivetrain, CommandXboxController joystick) {
         this.joystick = joystick;
@@ -75,6 +82,28 @@ public class Drive extends SubsystemBase {
 
         driveFieldCentricFacingAngle.HeadingController.setPID(5,0.1,0.02);
         targetDrivetrainAngle = Constants.imu.getYaw().getValueAsDouble();
+        
+        // Initialize PID controllers for centering
+        centeringXController = new PIDController(
+            Constants.centeringTranslationPID.kP,
+            Constants.centeringTranslationPID.kI,
+            Constants.centeringTranslationPID.kD
+        );
+        centeringYController = new PIDController(
+            Constants.centeringTranslationPID.kP,
+            Constants.centeringTranslationPID.kI,
+            Constants.centeringTranslationPID.kD
+        );
+        centeringRotationController = new PIDController(
+            Constants.centeringRotationPID.kP,
+            Constants.centeringRotationPID.kI,
+            Constants.centeringRotationPID.kD
+        );
+        
+        // Set tolerances for centering (when we consider the robot "centered")
+        centeringXController.setTolerance(0.05); // 5cm tolerance
+        centeringYController.setTolerance(0.05); // 5cm tolerance
+        centeringRotationController.setTolerance(Math.toRadians(2)); // 2 degree tolerance
 
         try {
             RobotConfig config = RobotConfig.fromGUISettings();
@@ -252,21 +281,6 @@ public class Drive extends SubsystemBase {
 
     }
 
-    public Command teleport(double tx, double ty, double tr) {
-        Pose2d c = getPose();
-        Translation2d lcoff = new Translation2d(tx, ty);
-        Translation2d fdoff = lcoff.rotateBy(c.getRotation());
-        Pose2d stpos = new Pose2d(c.getTranslation(), c.getRotation());
-        Rotation2d ndhd = c.getRotation().plus(new Rotation2d(tr));
-        Pose2d ndpos = new Pose2d(c.getTranslation().plus(fdoff), ndhd);
-        List<Waypoint> wp = PathPlannerPath.waypointsFromPoses(stpos, ndpos);
-        PathPlannerPath pth = new PathPlannerPath(wp, new PathConstraints(4.0, 4.0, Units.degreesToRadians(360), Units.degreesToRadians(540)), null, new GoalEndState(0.0, ndhd));
-        pth.preventFlipping = true;
-        cancelLastPath();
-        lastPath = AutoBuilder.followPath(pth); //lastPath is global
-        return lastPath;
-    }
-
     public Command pathAprilTag(AprilTagPIDReading reading) {
         return pathRelative(reading.getMetersX(), reading.getMetersY(), reading.getTagRotation());
     }
@@ -275,5 +289,40 @@ public class Drive extends SubsystemBase {
         return drivetrain.applyRequest(()->
             driveRobotCentric.withRotationalRate(-joystick.getRightX()*Constants.MaxAngularRate)
         );
+    }
+
+    public Command gopose(Pose2d tpose) {
+        return gopose(tpose, 0.0);
+    }
+
+    public Command gopose(Pose2d tpose, double endv) {
+        Pose2d cpos = getPose();
+        List<Waypoint> wp = PathPlannerPath.waypointsFromPoses(cpose, tpose);
+        PathPlannerPath path = new PathPlannerPath(
+            wp,
+            new PathConstraints(
+                4.0, //max v
+                4.0, //accel
+                Units.degreesToRadians(360),
+                Units.degreesToRadians(540)
+            ),
+            null,
+            new GoalEndState(endv, tpose.getRotation())
+        );
+        path.preventFlipping = 1;
+        cancelLastPath();
+        lastPath = AutoBuilder.followPath(path);
+        return lastPath;
+    }
+
+    public Command gotopos(double tx, double ty) {
+        Pose2d cpose = getPose();
+        Pose2d tpose = new Pose2d(tx, ty, cpose.getRotation());
+        return gopose(tpose);
+    }
+
+    public Command gotopos(double tx, double ty, double tr) {
+        Pose2d tpose = new Pose2d(tx, ty, new Rotation2d(tr));
+        return gpose(tpose);
     }
 }
