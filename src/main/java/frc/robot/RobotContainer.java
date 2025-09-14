@@ -94,19 +94,19 @@ public class RobotContainer {
 
         joystick.povLeft().whileTrue(driveSystem.gawkgawk(joystick));
 
-        Pose2d[] poslist = new Pose2d[]{
-            new Pose2d(2.92, 4.06, new Rotation2d(Math.toDegrees(0))),
-            new Pose2d(3.68, 2.66, new Rotation2d(Math.toDegrees(60))),
-            new Pose2d(5.28, 2.66, new Rotation2d(Math.toDegrees(120))),
-            new Pose2d(6.11, 4.02, new Rotation2d(Math.toDegrees(180))),
-            new Pose2d(5.29, 5.35, new Rotation2d(Math.toDegrees(240))),
-            new Pose2d(3.7, 5.41, new Rotation2d(Math.toDegrees(300)))
-        };
+        // Pose2d[] poslist = new Pose2d[]{
+        //     new Pose2d(2.92, 4.06, new Rotation2d(Math.toDegrees(0))),
+        //     new Pose2d(3.68, 2.66, new Rotation2d(Math.toDegrees(60))),
+        //     new Pose2d(5.28, 2.66, new Rotation2d(Math.toDegrees(120))),
+        //     new Pose2d(6.11, 4.02, new Rotation2d(Math.toDegrees(180))),
+        //     new Pose2d(5.29, 5.35, new Rotation2d(Math.toDegrees(240))),
+        //     new Pose2d(3.7, 5.41, new Rotation2d(Math.toDegrees(300)))
+        // };
 
-        joystick.povUp().onTrue(new InstantCommand(()->{
-            driveSystem.gopose(poslist[cposidx]).schedule();
-            cposidx = (cposidx+1)%poslist.length;
-        }));
+        // joystick.povUp().onTrue(new InstantCommand(()->{
+        //     driveSystem.gopose(poslist[cposidx]).schedule();
+        //     cposidx = (cposidx+1)%poslist.length;
+        // }));
 
         // if (Robot.isSimulation()) {
         //     joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
