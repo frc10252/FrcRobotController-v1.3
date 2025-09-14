@@ -312,7 +312,6 @@ public class Drive extends SubsystemBase {
             new Pose2d(6.11, 4.02, new Rotation2d(Math.toDegrees(180))),
             new Pose2d(5.29, 5.35, new Rotation2d(Math.toDegrees(240))),
             new Pose2d(3.7, 5.41, new Rotation2d(Math.toDegrees(300)))
-            
         };
 
         return driveToPose(positionList[position]);
