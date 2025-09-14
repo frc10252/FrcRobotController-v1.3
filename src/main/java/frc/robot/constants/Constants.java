@@ -20,11 +20,7 @@ public class Constants {
     public static final double MaxAngularRate = RotationsPerSecond.of(0.25).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     
     public static final PIDConstants translationConstants = new PIDConstants(5.0, 0.0, 0.0); //original p 5
-    public static final PIDConstants rotationConstants = new PIDConstants(5.0, 0.0, 0.0); //original p 5
-    
-    // PID constants for AprilTag centering
-    public static final PIDConstants centeringTranslationPID = new PIDConstants(2.0, 0.0, 0.1);
-    public static final PIDConstants centeringRotationPID = new PIDConstants(3.0, 0.0, 0.2);
+    public static final PIDConstants rotationConstants = new PIDConstants(0.1, 0.0, 0.001); //original p 5
 
     //Network
     public static final int IP_ADDRESS_LISTEN_PORT = 1234;
