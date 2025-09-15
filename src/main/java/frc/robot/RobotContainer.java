@@ -91,6 +91,14 @@ public class RobotContainer {
 
         joystick.povLeft().whileTrue(driveSystem.gawkgawk(joystick));
 
+        double[][] pos = new double[6][2];
+        for (int i=0; i<6; i++) {
+            pos[i][0] = Math.random()*50;
+            pos[i][1] = Math.random()*50;
+        }
+        int i = (int)(Math.random()*6);
+        joystick.povUp().onTrue(driveSystem.gotopos(pos[i][0], pos[i][1]));
+
         // if (Robot.isSimulation()) {
         //     joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
         // } else {
