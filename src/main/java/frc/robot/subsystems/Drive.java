@@ -64,12 +64,6 @@ public class Drive extends SubsystemBase {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public double targetDrivetrainAngle;
-
-    private final PIDController centxcontr;
-    private final PIDController centxcontr;
-    private final PIDController centrcontr;
-    private boolean iscent = false;
-    private AprilTagPIDReading lapriltagreading = null;
     
     public Drive(CommandSwerveDrivetrain drivetrain, CommandXboxController joystick) {
         this.joystick = joystick;
@@ -82,28 +76,6 @@ public class Drive extends SubsystemBase {
 
         driveFieldCentricFacingAngle.HeadingController.setPID(5,0.1,0.02);
         targetDrivetrainAngle = Constants.imu.getYaw().getValueAsDouble();
-        
-        // Initialize PID controllers for centering
-        centeringXController = new PIDController(
-            Constants.centeringTranslationPID.kP,
-            Constants.centeringTranslationPID.kI,
-            Constants.centeringTranslationPID.kD
-        );
-        centeringYController = new PIDController(
-            Constants.centeringTranslationPID.kP,
-            Constants.centeringTranslationPID.kI,
-            Constants.centeringTranslationPID.kD
-        );
-        centeringRotationController = new PIDController(
-            Constants.centeringRotationPID.kP,
-            Constants.centeringRotationPID.kI,
-            Constants.centeringRotationPID.kD
-        );
-        
-        // Set tolerances for centering (when we consider the robot "centered")
-        centeringXController.setTolerance(0.05); // 5cm tolerance
-        centeringYController.setTolerance(0.05); // 5cm tolerance
-        centeringRotationController.setTolerance(Math.toRadians(2)); // 2 degree tolerance
 
         try {
             RobotConfig config = RobotConfig.fromGUISettings();
@@ -296,7 +268,7 @@ public class Drive extends SubsystemBase {
     }
 
     public Command gopose(Pose2d tpose, double endv) {
-        Pose2d cpos = getPose();
+        Pose2d cpose = getPose();
         List<Waypoint> wp = PathPlannerPath.waypointsFromPoses(cpose, tpose);
         PathPlannerPath path = new PathPlannerPath(
             wp,
@@ -309,7 +281,7 @@ public class Drive extends SubsystemBase {
             null,
             new GoalEndState(endv, tpose.getRotation())
         );
-        path.preventFlipping = 1;
+        path.preventFlipping = true;
         cancelLastPath();
         lastPath = AutoBuilder.followPath(path);
         return lastPath;
@@ -323,6 +295,6 @@ public class Drive extends SubsystemBase {
 
     public Command gotopos(double tx, double ty, double tr) {
         Pose2d tpose = new Pose2d(tx, ty, new Rotation2d(tr));
-        return gpose(tpose);
+        return gopose(tpose);
     }
 }
