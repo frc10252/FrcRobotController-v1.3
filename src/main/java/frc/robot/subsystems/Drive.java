@@ -64,12 +64,6 @@ public class Drive extends SubsystemBase {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public double targetDrivetrainAngle;
-
-    private final PIDController centeringXController;
-    private final PIDController centeringYController;
-    private final PIDController centeringRotationController;
-    private boolean iscent = false;
-    private AprilTagPIDReading lapriltagreading = null;
     
     public Drive(CommandSwerveDrivetrain drivetrain, CommandXboxController joystick) {
         this.joystick = joystick;
@@ -82,16 +76,6 @@ public class Drive extends SubsystemBase {
 
         driveFieldCentricFacingAngle.HeadingController.setPID(5,0.1,0.02);
         targetDrivetrainAngle = Constants.imu.getYaw().getValueAsDouble();
-        
-        // Initialize PID controllers for centering with placeholder values
-        centeringXController = new PIDController(1.0, 0.0, 0.0);
-        centeringYController = new PIDController(1.0, 0.0, 0.0);
-        centeringRotationController = new PIDController(1.0, 0.0, 0.0);
-        
-        // Set tolerances for centering (when we consider the robot "centered")
-        centeringXController.setTolerance(0.05); // 5cm tolerance
-        centeringYController.setTolerance(0.05); // 5cm tolerance
-        centeringRotationController.setTolerance(Math.toRadians(2)); // 2 degree tolerance
 
         try {
             RobotConfig config = RobotConfig.fromGUISettings();
@@ -294,11 +278,23 @@ public class Drive extends SubsystemBase {
 
     } 
 
-    public Command driveToPose(Pose2d endPose){
-        Pose2d startPose = getPose();
-        List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(startPose, endPose);
-        Rotation2d endHeading = endPose.getRotation();
+    public Command pathAprilTag(AprilTagPIDReading reading) {
+        return pathRelative(reading.getMetersX(), reading.getMetersY(), reading.getTagRotation());
+    }
 
+    public Command gawkgawk(CommandXboxController joystick) {
+        return drivetrain.applyRequest(()->
+            driveRobotCentric.withRotationalRate(-joystick.getRightX()*Constants.MaxAngularRate)
+        );
+    }
+
+    public Command gopose(Pose2d tpose) {
+        return gopose(tpose, 0.0);
+    }
+
+    public Command gopose(Pose2d tpose, double endv) {
+        Pose2d cpose = getPose();
+        List<Waypoint> wp = PathPlannerPath.waypointsFromPoses(cpose, tpose);
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
             new PathConstraints(
@@ -310,9 +306,7 @@ public class Drive extends SubsystemBase {
             null, // Ideal starting state can be null for on-the-fly paths
             new GoalEndState(0.0, endHeading) // Final heading matches endPos heading
         );
-
         path.preventFlipping = true;
-
         cancelLastPath();
         lastPath = AutoBuilder.followPath(path);
         
@@ -334,23 +328,9 @@ public class Drive extends SubsystemBase {
         return driveToPose(positionList[position]);
     }
 
-    public Command teleport(double tx, double ty, double tr) {
-        Pose2d c = getPose();
-        Translation2d lcoff = new Translation2d(tx, ty);
-        Translation2d fdoff = lcoff.rotateBy(c.getRotation());
-        Pose2d stpos = new Pose2d(c.getTranslation(), c.getRotation());
-        Rotation2d ndhd = c.getRotation().plus(new Rotation2d(tr));
-        Pose2d ndpos = new Pose2d(c.getTranslation().plus(fdoff), ndhd);
-        List<Waypoint> wp = PathPlannerPath.waypointsFromPoses(stpos, ndpos);
-        PathPlannerPath pth = new PathPlannerPath(wp, new PathConstraints(4.0, 4.0, Units.degreesToRadians(360), Units.degreesToRadians(540)), null, new GoalEndState(0.0, ndhd));
-        pth.preventFlipping = true;
-        cancelLastPath();
-        lastPath = AutoBuilder.followPath(pth); //lastPath is global
-        return lastPath;
-    }
-
-    public Command pathAprilTag(AprilTagPIDReading reading) {
-        return pathRelative(reading.getMetersX(), reading.getMetersY(), reading.getTagRotation());
+    public Command gotopos(double tx, double ty, double tr) {
+        Pose2d tpose = new Pose2d(tx, ty, new Rotation2d(tr));
+        return gopose(tpose);
     }
 
     public Command gawkgawk(CommandXboxController joystick) {
