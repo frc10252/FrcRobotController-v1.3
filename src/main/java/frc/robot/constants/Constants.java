@@ -19,8 +19,8 @@ public class Constants {
     public static final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     public static final double MaxAngularRate = RotationsPerSecond.of(0.25).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     
-    public static final PIDConstants translationConstants = new PIDConstants(5.0, 0.0, 0.0); //original p 5
-    public static final PIDConstants rotationConstants = new PIDConstants(0.1, 0.0, 0.001); //original p 5
+    public static final PIDConstants translationConstants = new PIDConstants(12, 0.0001, 0.01); //original p 5
+    public static final PIDConstants rotationConstants = new PIDConstants(6, 0.01, 0.1); //original p 5
 
     //Network
     public static final int IP_ADDRESS_LISTEN_PORT = 1234;

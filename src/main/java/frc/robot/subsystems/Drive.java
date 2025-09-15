@@ -55,7 +55,7 @@ public class Drive extends SubsystemBase {
     private final CommandXboxController joystick;
 
     private final SwerveRequest.FieldCentric driveFieldCentric = new SwerveRequest.FieldCentric()
-    .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 10% deadband
+    .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.2) // Add a 10% deadband
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);;
 
     private final SwerveRequest.FieldCentricFacingAngle driveFieldCentricFacingAngle = new SwerveRequest.FieldCentricFacingAngle()
@@ -178,7 +178,8 @@ public class Drive extends SubsystemBase {
         drivetrain.applyRequest(() -> driveRobotCentric
         .withVelocityX(targetPowerX)
         .withVelocityY(targetPowerY)
-        .withRotationalRate(targetRotationalPower))
+        .withRotationalRate(-targetRotationalPower))
+        //TODO: CHANGE BACK ASAP!!!! also btw pathplanner explodes wo this change
         .schedule();
     }
 
@@ -202,7 +203,7 @@ public class Drive extends SubsystemBase {
         return drivetrain.applyRequest(() ->
             driveFieldCentric.withVelocityX(joystick.getLeftY()) // Drive forward with negative Y (forward)
                 .withVelocityY(joystick.getLeftX()) // Drive left with negative X (left)
-                .withRotationalRate(-joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+                .withRotationalRate(joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
         );
     }
 
@@ -261,8 +262,8 @@ public class Drive extends SubsystemBase {
             new PathConstraints(
                 0.5, 
                 0.5,
-                Units.degreesToRadians(0), 
-                Units.degreesToRadians(0)
+                Units.degreesToRadians(360), 
+                Units.degreesToRadians(90)
             ),
             null, // Ideal starting state can be null for on-the-fly paths
             new GoalEndState(0.0, endHeading) // Final heading matches endPos heading

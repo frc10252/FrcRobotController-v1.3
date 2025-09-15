@@ -88,32 +88,28 @@ public class RobotContainer {
         }));
 
         joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
+        joystick.b().whileTrue(drivetrain.applyRequest(
+                () -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
 
-        joystick.povLeft().whileTrue(driveSystem.gawkgawk(joystick));
-
-        // Pose2d[] poslist = new Pose2d[]{
-        //     new Pose2d(2.92, 4.06, new Rotation2d(Math.toDegrees(0))), //17
-        //     new Pose2d(3.68, 2.66, new Rotation2d(Math.toDegrees(60))), //18
-        //     new Pose2d(5.28, 2.66, new Rotation2d(Math.toDegrees(120))), //19
-        //     new Pose2d(6.11, 4.02, new Rotation2d(Math.toDegrees(180))), //20
-        //     new Pose2d(5.29, 5.35, new Rotation2d(Math.toDegrees(240))), //21
-        //     new Pose2d(3.7, 5.41, new Rotation2d(Math.toDegrees(300))) //22
-        // };
-
-        // joystick.povUp().onTrue(new InstantCommand(()->{
-        //     driveSystem.gopose(poslist[cposidx]).schedule();
-        //     cposidx = (cposidx+1)%poslist.length;
-        // }));
-
-        // if (Robot.isSimulation()) {
-        //     joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0)); // Random test path
-        // } else {
-        //     joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
-        // }
-        joystick.x().onTrue(new InstantCommand(()->{Command autoCommand = new PathPlannerAuto("a1").andThen(()->{driveSystem.resetFacingAngle();}); autoCommand.schedule();}));
+        if (Robot.isSimulation()) {
+            // joystick.x().onTrue(driveSystem.pathRelative(0,0,1)); // Random test path
+            joystick.x().onTrue(
+                    new InstantCommand(() -> {
+                        driveSystem.pathRelative(1, 1, Math.toRadians(90)).schedule();
+                        // driveSystem.driveToPose(new Pose2d(4,4,new Rotation2d(0))).schedule();
+                        // driveSystem.driveToBlueAlgae(2).schedule();
+                    }, driveSystem));
+        } else {
+            // joystick.x().onTrue(driveSystem.pathAprilTag(messageListenerSystem.getAprilTagPIDReading()));
+            // joystick.x().onTrue(driveSystem.pathRelative(1, 1, 0));
+            // joystick.x().onTrue(
+                    // new InstantCommand(() -> {
+                    //     driveSystem.pathRelative(1, 1, Math.toRadians(90)).schedule();
+                    // }, driveSystem));
+                    joystick.x().onTrue(
+                        new PathPlannerAuto("Test Rotation") // Runs a PathPlanner auto when X is pressed
+                    );
+        }
 
         joystick.povDown().onTrue(new InstantCommand(() -> {
             orchestra.play();
