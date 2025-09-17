@@ -57,6 +57,10 @@ public class Elevator extends SubsystemBase {
         return elevatorNeo2.getEncoder().getPosition();
     }
 
+    public double getVelocity() {
+        return elevatorNeo2.getEncoder().getVelocity();
+    }
+
     public double getOffset(){
         return neoOffset;
     }
