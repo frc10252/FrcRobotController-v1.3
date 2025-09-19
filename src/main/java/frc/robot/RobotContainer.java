@@ -104,6 +104,7 @@ public class RobotContainer {
         joystick.povRight().onTrue(new InstantCommand(() -> {
             orchestra.stop();
         }));
+        joystick.povLeft().whileTrue(driveSystem.teleport(3.0, 3.0, 0.0));
         
         joystick.y().onTrue(driveSystem.runOnce(() -> {
             driveSystem.cancelLastPath();

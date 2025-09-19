@@ -252,6 +252,21 @@ public class Drive extends SubsystemBase {
 
     }
 
+    public Command teleport(double tx, double ty, double tr) {
+        Pose2d c = getPose();
+        Translation2d lcoff = new Translation2d(tx, ty);
+        Translation2d fdoff = lcoff.rotateBy(c.getRotation());
+        Pose2d stpos = new Pose2d(c.getTranslation(), c.getRotation());
+        Rotation2d ndhd = c.getRotation().plus(new Rotation2d(tr));
+        Pose2d ndpos = new Pose2d(c.getTranslation().plus(fdoff), ndhd);
+        List<Waypoint> wp = PathPlannerPath.waypointsFromPoses(stpos, ndpos);
+        PathPlannerPath pth = new PathPlannerPath(wp, new PathConstraints(4.0, 4.0, Units.degreesToRadians(360), Units.degreesToRadians(540)), null, new GoalEndState(0.0, ndhd));
+        pth.preventFlipping = true;
+        cancelLastPath();
+        lastPath = AutoBuilder.followPath(pth); //lastPath is global
+        return lastPath;
+    }
+
     public Command pathAprilTag(AprilTagPIDReading reading) {
         return pathRelative(reading.getMetersX(), reading.getMetersY(), reading.getTagRotation());
     }
