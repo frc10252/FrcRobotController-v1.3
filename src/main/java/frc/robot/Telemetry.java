@@ -117,6 +117,7 @@ public class Telemetry {
         SmartDashboard.putNumber("AT X", atr.getMetersX());
         SmartDashboard.putNumber("AT Y", atr.getMetersY());
         SmartDashboard.putNumber("AT Rot", atr.getTagRotation());
+        SmartDashboard.putNumber("Last msg", Robot.m_robotContainer.getMessageListener().timeSinceLastMessage());
 
         /* Telemeterize the pose to a Field2d */
         fieldTypePub.set("Field2d");

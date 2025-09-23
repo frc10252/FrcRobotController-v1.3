@@ -25,6 +25,10 @@ public class Constants {
     public static final int IP_ADDRESS_LISTEN_PORT = 1234;
     public static final String LISTEN_IP_ADDRESS = "0.0.0.0";
 
+    public static final double AprilTagXScalingCoefficient=1.0;
+    public static final double AprilTagYScalingCoefficient=1.0/1.397;
+    public static final double AprilTagRotationCoefficient=1.0;
+
     //Motors + IDs
     public static SparkMax elevatorNeo1 = new SparkMax(ELEVATOR_NEO_CAN_ID_1, MotorType.kBrushless);
     public static SparkMax elevatorNeo2 = new SparkMax(ELEVATOR_NEO_CAN_ID_2, MotorType.kBrushless);

@@ -4,6 +4,8 @@ import java.net.DatagramPacket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import frc.robot.constants.Constants;
+
 
 public class AprilTagPIDReading {
     private double pidX;
@@ -12,6 +14,9 @@ public class AprilTagPIDReading {
     private double metersX;
     private double metersY;
     private double tagRotation;
+    private double scalingXCoef;
+    private double scalingYCoef;
+    private double scalingRotationCoef;
 
     public AprilTagPIDReading(double pidX, double pidZ, double pidYaw, double metersX, double metersY, double tagRotation) {
         this.pidX = pidX;
@@ -20,7 +25,9 @@ public class AprilTagPIDReading {
         this.metersX = metersX;
         this.metersY = metersY;
         this.tagRotation = tagRotation;
-
+        this.scalingXCoef = Constants.AprilTagXScalingCoefficient;
+        this.scalingYCoef = Constants.AprilTagYScalingCoefficient;
+        this.scalingRotationCoef = Constants.AprilTagRotationCoefficient;
     }
 
     public static AprilTagPIDReading decompress(DatagramPacket packet) {
@@ -36,8 +43,6 @@ public class AprilTagPIDReading {
         metersX = buffer.getFloat();
         metersY = buffer.getFloat();
         tagRotation = buffer.getFloat();
-
-
 
         return new AprilTagPIDReading(pidX, pidZ, pidYaw, metersX, metersY, tagRotation);
     }
@@ -55,15 +60,15 @@ public class AprilTagPIDReading {
     }
 
     public double getMetersX() {
-        return metersX;
+        return metersX*scalingXCoef;
     }
 
     public double getMetersY() {
-        return metersY;
+        return metersY*scalingYCoef;
     }
 
     public double getTagRotation() {
-        return tagRotation;
+        return tagRotation*scalingRotationCoef;
     }
 
     @Override
